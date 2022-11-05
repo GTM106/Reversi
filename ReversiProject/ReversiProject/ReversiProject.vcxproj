@@ -130,14 +130,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="ConsoleClear.cpp" />
+    <ClCompile Include="ConsoleManager.cpp" />
     <ClCompile Include="PlayerData.cpp" />
     <ClCompile Include="Reversi.cpp" />
     <ClCompile Include="source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="ConsoleClear.h" />
+    <ClInclude Include="ConsoleManager.h" />
     <ClInclude Include="PlayerData.h" />
     <ClInclude Include="Reversi.h" />
   </ItemGroup>

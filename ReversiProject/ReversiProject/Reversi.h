@@ -5,7 +5,7 @@
 
 class Reversi
 {
-	const int SIZE = 10;
+	const int BOARD_SIZE = 10;
 
 	//”Õ–Ê
 	std::vector<std::vector<Board>> _board = {};

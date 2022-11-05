@@ -18,6 +18,8 @@ class Board
 public:
 	Board(BoardStatus status);
 
+	void reverse();
+
 	BoardStatus status() { return _status; }
 	bool can_placed() { return _can_placed; }
 

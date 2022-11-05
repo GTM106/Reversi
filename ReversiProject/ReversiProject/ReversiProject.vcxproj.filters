@@ -24,7 +24,7 @@
     <ClCompile Include="Reversi.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleClear.cpp">
+    <ClCompile Include="ConsoleManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="PlayerData.cpp">
@@ -38,7 +38,7 @@
     <ClInclude Include="Reversi.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleClear.h">
+    <ClInclude Include="ConsoleManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="PlayerData.h">

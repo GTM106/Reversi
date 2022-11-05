@@ -15,3 +15,9 @@ void Board::set_status(BoardStatus status)
 {
 	_status = status;
 }
+
+void Board::reverse()
+{
+	if (_status == Black)_status = White;
+	else if (_status == White)_status = Black;
+}
