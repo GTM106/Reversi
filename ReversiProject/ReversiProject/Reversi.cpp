@@ -1,11 +1,12 @@
 #include <iostream>
 #include <vector>
+#include <conio.h>
 
 #include "Reversi.h"
-#include "ConsoleClear.h"
+#include "ConsoleManager.h"
 #include "PlayerData.h"
 
-using namespace std;
+using namespace std; 
 
 void Reversi::start()
 {
@@ -18,23 +19,23 @@ void Reversi::start()
 
 void Reversi::init_board()
 {
-	for (int i = 0; i < SIZE; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		//直接構築で新たな要素を末尾に追加する
 		_board.emplace_back();
 
-		for (int j = 0; j < SIZE; j++)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
 			_board[i].push_back(None);
 		}
 	}
 
-	for (int i = 0; i < SIZE; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		_board[0][i].set_status(Wall);
-		_board[SIZE - 1][i].set_status(Wall);
+		_board[BOARD_SIZE - 1][i].set_status(Wall);
 		_board[i][0].set_status(Wall);
-		_board[i][SIZE - 1].set_status(Wall);
+		_board[i][BOARD_SIZE - 1].set_status(Wall);
 	}
 
 	_board[4][4].set_status(White);
@@ -46,10 +47,10 @@ void Reversi::init_board()
 void Reversi::print_board()
 {
 	cout << "-------------------------------" << endl;
-	for (int i = 0; i < SIZE; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		cout << "|";
-		for (int j = 0; j < SIZE; j++)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
 			switch (_board[i][j].status())
 			{
@@ -83,6 +84,8 @@ bool Reversi::initial_settings()
 
 void Reversi::gameloop()
 {
+	ConsoleManager consoleManager;
+
 	int turn = 0;
 	while (true)
 	{
@@ -90,12 +93,10 @@ void Reversi::gameloop()
 
 		//表示
 		rewrite_can_placed_board(p.color());
-		console_clear();
+		consoleManager.console_clear();
 		print_board();
 
 		p.turn(_board);
-
-		break;
 	}
 }
 
@@ -106,9 +107,9 @@ void Reversi::rewrite_can_placed_board(BoardStatus color)
 	vector<vector<int>> search_table = { {0,1},{0,-1},{1,0},{-1,0},{1,1},{1,-1} ,{-1,1},{-1,-1} };
 
 	//全探索。より良い方法模索中
-	for (int i = 1; i < SIZE - 1; i++)
+	for (int i = 1; i < BOARD_SIZE - 1; i++)
 	{
-		for (int j = 1; j < SIZE - 1; j++)
+		for (int j = 1; j < BOARD_SIZE - 1; j++)
 		{
 			//すでに置かれていたら置けない
 			if (_board[i][j].status() != None)
