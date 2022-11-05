@@ -1,6 +1,9 @@
+#include <iostream>
+#include <vector>
+
 #include "Reversi.h"
 #include "ConsoleClear.h"
-#include <iostream>
+#include "PlayerData.h"
 
 using namespace std;
 
@@ -8,12 +11,9 @@ void Reversi::start()
 {
 	init_board();
 
-	print_board();
-	
+	if (!initial_settings())return;
 
-	//if (!initial_settings())return;
-
-	//gameloop();
+	gameloop();
 }
 
 void Reversi::init_board()
@@ -54,7 +54,8 @@ void Reversi::print_board()
 			switch (_board[i][j].status())
 			{
 			case None:
-				cout << "@";
+				if (_board[i][j].can_placed()) cout << "E";
+				else cout << "@";
 				break;
 			case White:
 				cout << "œ";
@@ -73,4 +74,72 @@ void Reversi::print_board()
 		cout << endl;
 		cout << "-------------------------------" << endl;
 	}
+}
+
+bool Reversi::initial_settings()
+{
+	return true;
+}
+
+void Reversi::gameloop()
+{
+	int turn = 0;
+	while (true)
+	{
+		PlayerData p = player[(turn++) % 2];
+
+		//•\¦
+		rewrite_can_placed_board(p.color());
+		console_clear();
+		print_board();
+
+		p.turn(_board);
+
+		break;
+	}
+}
+
+void Reversi::rewrite_can_placed_board(BoardStatus color)
+{
+	BoardStatus reverseColor = color == Black ? White : Black;
+
+	vector<vector<int>> search_table = { {0,1},{0,-1},{1,0},{-1,0},{1,1},{1,-1} ,{-1,1},{-1,-1} };
+
+	//‘S’TõB‚æ‚è—Ç‚¢•û–@–Íõ’†
+	for (int i = 1; i < SIZE - 1; i++)
+	{
+		for (int j = 1; j < SIZE - 1; j++)
+		{
+			//‚·‚Å‚É’u‚©‚ê‚Ä‚¢‚½‚ç’u‚¯‚È‚¢
+			if (_board[i][j].status() != None)
+			{
+				_board[i][j].set_can_placed(false);
+				continue;
+			}
+
+			//’u‚©‚ê‚Ä‚¢‚È‚¢êŠ‚È‚ç”ª•ûŒü‚É’Tõ
+			for (int k = 0; k < 8; k++)
+			{
+				//depth‚ğg‚¤‚È‚ç‚±‚Ìˆ—‚ğ‚â‚ß‚Ädepth‚É‚æ‚Á‚Ä”»’è
+				bool can_placed = linear_search(0, i, j, search_table[k][0], search_table[k][1], color);
+				_board[i][j].set_can_placed(can_placed);
+				if (can_placed)break;
+			}
+		}
+	}
+}
+
+bool Reversi::linear_search(int depth, int i, int j, int iplus, int jplus, BoardStatus color)
+{
+	BoardStatus current_board_status = _board[i + iplus][j + jplus].status();
+
+	//‚Ç‚Ìê‡‚Å‚àA’u‚©‚ê‚Ä‚¢‚È‚¢ê‡‚Æ•Ç‚Ìê‡‚Í’Tõ¸”s
+	if (current_board_status == None)return false;
+	if (current_board_status == Wall)return false;
+
+	//©•ª‚ÌF‚Å‰’Tõ‚È‚ç’Tõ¸”sA“ñ‰ñ–ÚˆÈ~‚Í’Tõ¬Œ÷
+	if (current_board_status == color)return depth != 0;
+
+	//©•ª‚Å‚È‚¢F‚Ìê‡’Tõ‘±s
+	return linear_search(++depth, i + iplus, j + jplus, iplus, jplus, color);
 }
