@@ -1,29 +1,32 @@
 #pragma once
-
-enum BoardStatus
-{
-	None,
-	White,
-	Black,
-	Wall,
-
-	Max
-};
+#include <vector>
+#include "Vector2Int.h"
+#include "BoardPoint.h"
 
 class Board
 {
-	BoardStatus _status;
-	bool _can_placed;
+	const int BOARD_SIZE = 10;
+
+	//10*10の盤面、vectorである必要はないが扱いやすいためこれで定義
+	std::vector<std::vector<BoardPoint>> _board;
+
+	//そのターン起きた情報の保存。
+	std::vector<std::vector<BoardPoint>> _log;
+
+	const Vector2Int SEARCH_TABLE[8] = { Vector2Int(0,-1),Vector2Int(1,-1),Vector2Int(1,0),Vector2Int(1,1),Vector2Int(0,1),Vector2Int(-1,1) ,Vector2Int(-1,0),Vector2Int(-1,-1) };
+
+	void reverse(Vector2Int pos,BoardStatus color);
 
 public:
-	Board(BoardStatus status);
+	Board();
+	void checkCanPlaced(const Vector2Int pos, BoardStatus color);
 
-	void reverse();
+	void init();
+	void undo();
+	void pass();
+	void placedStone(Vector2Int pos,BoardStatus color);
 
-	BoardStatus status() { return _status; }
-	bool can_placed() { return _can_placed; }
+	void printBoard();
 
-	void set_status(BoardStatus status);
-	void set_can_placed(bool enable);
+	std::vector<std::vector<BoardPoint>>& board() { return _board; }
 };
-
