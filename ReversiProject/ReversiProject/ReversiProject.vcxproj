@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="BoardPoint.cpp" />
     <ClCompile Include="ConsoleManager.cpp" />
     <ClCompile Include="PlayerData.cpp" />
     <ClCompile Include="Reversi.cpp" />
@@ -137,9 +138,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
+    <ClInclude Include="BoardPoint.h" />
     <ClInclude Include="ConsoleManager.h" />
     <ClInclude Include="PlayerData.h" />
     <ClInclude Include="Reversi.h" />
+    <ClInclude Include="Vector2Int.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

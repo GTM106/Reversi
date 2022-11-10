@@ -1,17 +1,23 @@
 #pragma once
-#include <vector>
+#include "BoardPoint.h"
+#include "Vector2Int.h"
 #include "Board.h"
 
 class PlayerData
 {
 	BoardStatus _color;
 
-	void print_board(int h, int v, std::vector<std::vector<Board>> board);
-	void input(std::vector<std::vector<Board>>& board);
+	Vector2Int _selectPos;
+
+	void print_board(int h, int v, Board board);
+	void input(Board& board);
 public:
 	PlayerData(BoardStatus color);
 
-	void turn(std::vector<std::vector<Board>>& board);
+	void turn(Board& board);
 
 	BoardStatus color() { return _color; }
+	Vector2Int selectPos() { return _selectPos; }
+
+	void set_selectPos(Vector2Int vec);
 };

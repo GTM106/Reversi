@@ -4,6 +4,7 @@
 
 #include "PlayerData.h"
 #include "ConsoleManager.h"
+#include "Vector2Int.h"
 
 #define KEY_UP 72
 #define KEY_DOWN 80
@@ -26,17 +27,34 @@ PlayerData::PlayerData(BoardStatus color)
 	_color = color;
 }
 
-void PlayerData::turn(vector<vector<Board>>& board)
+void PlayerData::set_selectPos(Vector2Int vec)
 {
+	_selectPos = vec;
+}
+
+void PlayerData::turn(Board& board)
+{
+	for (int i = 1; i < 9; i++)
+	{
+		for (int j = 1; j < 9; j++)
+		{
+			board.checkCanPlaced(Vector2Int(i, j), _color);
+		}
+	}
 	input(board);
 }
 
-void PlayerData::input(vector<vector<Board>>& board)
+
+void PlayerData::input(Board& board)
 {
 	ConsoleManager consoleManager;
 
 	int h = 5;
 	int v = 5;
+
+	//現在の地点を特殊表示
+	consoleManager.console_clear();
+	print_board(h, v, board);
 
 	//入力
 	int val = 0;
@@ -47,38 +65,48 @@ void PlayerData::input(vector<vector<Board>>& board)
 		case KEY_8:
 		case KEY_W:
 		case KEY_UP:
-			if (--v == 0)v = 1;
+			if (v == 1)	continue;
+
+			v--;
+
 			break;
 
 		case KEY_2:
 		case KEY_S:
 		case KEY_DOWN:
-			if (++v == static_cast<int>(board.size() - 1))v = static_cast<int>(board.size() - 2);
+			if (v == static_cast<int>(board.board().size() - 2))continue;
+			v++;
+
 			break;
 
 		case KEY_4:
 		case KEY_A:
 		case KEY_LEFT:
-			if (--h == 0)h = 1;
+			if (h == 1)continue;
+			h--;
+
 			break;
 
 		case KEY_6:
 		case KEY_D:
 		case KEY_RIGHT:
-			if (++h == static_cast<int>(board.size() - 1))h = static_cast<int>(board.size() - 2);
+			if (h == static_cast<int>(board.board().size() - 2))continue;
+			h++;
+
 			break;
 		case KEY_ENTER:
-			if (!board[v][h].can_placed())
+			if (board.board()[v][h].direction() == 0)
 			{
 				val = 0;
 				cout << "そこには置けません。" << endl;
 				continue;
 			}
 
-			board[v][h].set_status(_color);
+			board.placedStone(Vector2Int(v,h),_color);
+			set_selectPos(Vector2Int(v, h));
 			break;
 		default:
-			break;
+			continue;
 		}
 
 		//現在の地点を特殊表示
@@ -88,9 +116,11 @@ void PlayerData::input(vector<vector<Board>>& board)
 }
 
 //通常とは異なる特殊な盤面表示
-void PlayerData::print_board(int h, int v, vector<vector<Board>> board)
+void PlayerData::print_board(int h, int v, Board _board)
 {
 	ConsoleManager consoleManager;
+
+	auto board = _board.board();
 
 	cout << "-------------------------------" << endl;
 	for (int i = 0; i < board.size(); i++)
@@ -103,7 +133,7 @@ void PlayerData::print_board(int h, int v, vector<vector<Board>> board)
 			switch (board[i][j].status())
 			{
 			case None:
-				if (board[i][j].can_placed()) cout << "・";
+				if (board[i][j].direction() != 0) cout << "・";
 				else cout << "　";
 				break;
 			case White:
