@@ -19,6 +19,7 @@
 #define KEY_4 52
 #define KEY_6 54
 #define KEY_8 56
+#define KEY_U 117
 
 using namespace std;
 
@@ -105,6 +106,23 @@ void PlayerData::input(Board& board)
 			board.placedStone(Vector2Int(v,h),_color);
 			set_selectPos(Vector2Int(v, h));
 			break;
+		case KEY_U:
+			if (!board.undo())
+			{
+				cout << "����ȏ�߂��܂���" << endl;
+				continue;
+			}
+
+			for (int i = 1; i < 9; i++)
+			{
+				for (int j = 1; j < 9; j++)
+				{
+					board.checkCanPlaced(Vector2Int(i, j), _color);
+				}
+			}
+
+			break;
+
 		default:
 			continue;
 		}
