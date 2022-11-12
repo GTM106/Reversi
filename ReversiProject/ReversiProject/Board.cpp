@@ -137,7 +137,7 @@ void Board::checkCanPlaced(const Vector2Int pos, const BoardStatus color)
 		if (_board[x][y].status() == color)direction |= (1 << i);
 	}
 
-	//ï¿½uï¿½ï¿½ï¿½ï¿½êŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½uï¿½ï¿½ï¿½ï¿½êŠï¿½Ì’nï¿½_ï¿½É“oï¿½^
+	//’u‚¯‚éêŠ‚ª‚ ‚é‚È‚ç’u‚¯‚éêŠ‚Ì’n“_‚É“o˜^
 	if (direction != 0)	_canPlacedPoint.push_back(_board[pos.x][pos.y]);
 
 	_board[pos.x][pos.y].setDirection(direction);
@@ -176,7 +176,7 @@ bool Board::pass()
 {
 	if (_canPlacedPoint.size() > 0)return false;
 
-	//ï¿½ï¿½Ì”zï¿½ï¿½ï¿½ï¿½ï¿½
+	//‹ó‚Ì”z—ñ‚ð‘ã“ü
 	_log.push_back(vector<BoardPoint>());
 	return true;
 }
