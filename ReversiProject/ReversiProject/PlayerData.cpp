@@ -109,7 +109,7 @@ void PlayerData::input(Board& board)
 		case KEY_U:
 			if (!board.undo())
 			{
-				cout << "ï¿½ï¿½ï¿½ï¿½Èï¿½ß‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½" << endl;
+				cout << "‚»‚êˆÈã–ß‚¹‚Ü‚¹‚ñ" << endl;
 				continue;
 			}
 
