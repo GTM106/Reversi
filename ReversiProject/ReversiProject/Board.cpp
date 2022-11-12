@@ -137,6 +137,9 @@ void Board::checkCanPlaced(const Vector2Int pos, const BoardStatus color)
 		if (_board[x][y].status() == color)direction |= (1 << i);
 	}
 
+	//置ける場所があるなら置ける場所の地点に登録
+	if (direction != 0)	_canPlacedPoint.push_back(_board[pos.x][pos.y]);
+
 	_board[pos.x][pos.y].setDirection(direction);
 }
 
@@ -169,7 +172,16 @@ bool Board::undo()
 	return true;
 }
 
-void Board::pass()
+bool Board::pass()
 {
+	if (_canPlacedPoint.size() > 0)return false;
 
+	//空の配列を代入
+	_log.push_back(vector<BoardPoint>());
+	return true;
+}
+
+void Board::turnEnd()
+{
+	_canPlacedPoint.clear();
 }
