@@ -150,6 +150,13 @@ bool Board::undo()
 	auto undoMethod = [this]()
 	{
 		int index = static_cast<int>(_log.size() - 1);
+		if (_log[index].size() == 0)
+		{
+			//今回もとに戻したログを削除
+			_log.pop_back();
+
+			return;
+		}
 
 		Vector2Int pos = _log[index][0].position();
 		_board[pos.x][pos.y].setStatus(None);
@@ -162,7 +169,6 @@ bool Board::undo()
 
 		//今回もとに戻したログを削除
 		_log.pop_back();
-
 	};
 
 	//2回同じ処理を呼び出すことで直前の自分のターンに戻る
