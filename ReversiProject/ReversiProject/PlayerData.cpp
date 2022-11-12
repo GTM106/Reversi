@@ -42,9 +42,13 @@ void PlayerData::turn(Board& board)
 			board.checkCanPlaced(Vector2Int(i, j), _color);
 		}
 	}
-	input(board);
-}
 
+	//パスに成功したら弾く（置く場所がなかった）
+	if (board.pass())return;
+	
+	input(board);
+	board.turnEnd();
+}
 
 void PlayerData::input(Board& board)
 {
@@ -138,7 +142,7 @@ void PlayerData::print_board(int h, int v, Board _board)
 {
 	ConsoleManager consoleManager;
 
-	auto board = _board.board();
+	auto& board = _board.board();
 
 	cout << "-------------------------------" << endl;
 	for (int i = 0; i < board.size(); i++)
