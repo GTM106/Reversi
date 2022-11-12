@@ -10,6 +10,7 @@ Board::Board()
 void Board::init()
 {
 	_board.clear();
+	_log.clear();
 
 	for (int i = 0; i < BOARD_SIZE; i++)
 	{
@@ -64,9 +65,9 @@ void Board::printBoard()
 			}
 			cout << "|";
 		}
+
 		cout << endl;
 		cout << "-------------------------------" << endl;
-
 	}
 }
 
@@ -113,7 +114,11 @@ void Board::reverse(const Vector2Int pos, const BoardStatus color)
 void Board::checkCanPlaced(const Vector2Int pos, const BoardStatus color)
 {
 	//‚·‚Å‚É’u‚©‚ê‚Ä‚¢‚½‚ç’e‚­
-	if (_board[pos.x][pos.y].status() != BoardStatus::None)return;
+	if (_board[pos.x][pos.y].status() != BoardStatus::None)
+	{
+		_board[pos.x][pos.y].setDirection(0);
+		return;
+	}
 
 	unsigned direction = 0;
 	int x, y;

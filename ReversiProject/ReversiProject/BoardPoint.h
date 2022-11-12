@@ -33,4 +33,3 @@ public:
 	void setCanPlaced(bool enable);
 	void setDirection(unsigned dir);
 };
-
