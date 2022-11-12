@@ -16,7 +16,6 @@ class Board
 	//そのターン起きた情報の保存。
 	std::vector<std::vector<BoardPoint>> _log;
 
-
 	const Vector2Int SEARCH_TABLE[8] = { Vector2Int(0,-1),Vector2Int(1,-1),Vector2Int(1,0),Vector2Int(1,1),Vector2Int(0,1),Vector2Int(-1,1) ,Vector2Int(-1,0),Vector2Int(-1,-1) };
 
 	void reverse(const Vector2Int pos, const BoardStatus color);
