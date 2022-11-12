@@ -70,13 +70,13 @@ void Board::printBoard()
 	}
 }
 
-void Board::placedStone(Vector2Int pos, BoardStatus color)
+void Board::placedStone(const Vector2Int pos, const BoardStatus color)
 {
 	_board[pos.x][pos.y].setStatus(color);
 	reverse(pos, color);
 }
 
-void Board::reverse(Vector2Int pos, BoardStatus color)
+void Board::reverse(const Vector2Int pos, const BoardStatus color)
 {
 	vector<BoardPoint> updateLog;
 	int x, y;
@@ -96,7 +96,7 @@ void Board::reverse(Vector2Int pos, BoardStatus color)
 		{
 			//石を反転させて
 			_board[x][y].reverse();
-			
+
 			//その結果を記録
 			updateLog.push_back(_board[x][y]);
 
@@ -110,13 +110,14 @@ void Board::reverse(Vector2Int pos, BoardStatus color)
 	_log.push_back(updateLog);
 }
 
-void Board::checkCanPlaced(Vector2Int pos, BoardStatus color)
+void Board::checkCanPlaced(const Vector2Int pos, const BoardStatus color)
 {
 	//すでに置かれていたら弾く
 	if (_board[pos.x][pos.y].status() != BoardStatus::None)return;
 
 	unsigned direction = 0;
 	int x, y;
+
 	for (int i = 0; i < 8; i++)
 	{
 		x = pos.x + SEARCH_TABLE[i].x;
@@ -137,4 +138,38 @@ void Board::checkCanPlaced(Vector2Int pos, BoardStatus color)
 	}
 
 	_board[pos.x][pos.y].setDirection(direction);
+}
+
+bool Board::undo()
+{
+	if (_log.size() <= 1)return false;
+
+	auto undoMethod = [this]()
+	{
+		int index = static_cast<int>(_log.size() - 1);
+
+		Vector2Int pos = _log[index][0].position();
+		_board[pos.x][pos.y].setStatus(None);
+
+		for (int i = 1; i < _log[index].size(); i++)
+		{
+			pos = _log[index][i].position();
+			_board[pos.x][pos.y].reverse();
+		}
+
+		//今回もとに戻したログを削除
+		_log.pop_back();
+
+	};
+
+	//2回同じ処理を呼び出すことで直前の自分のターンに戻る
+	undoMethod();
+	undoMethod();
+
+	return true;
+}
+
+void Board::pass()
+{
+
 }
