@@ -28,12 +28,7 @@ PlayerData::PlayerData(BoardStatus color)
 	_color = color;
 }
 
-void PlayerData::set_selectPos(Vector2Int vec)
-{
-	_selectPos = vec;
-}
-
-void PlayerData::turn(Board& board)
+bool PlayerData::turn(Board& board)
 {
 	for (int i = 1; i < 9; i++)
 	{
@@ -44,10 +39,18 @@ void PlayerData::turn(Board& board)
 	}
 
 	//パスに成功したら弾く（置く場所がなかった）
-	if (board.pass())return;
-	
+	if (board.pass())
+	{
+		if (!board.turnEnd())return false;
+		return true;
+	}
+
 	input(board);
-	board.turnEnd();
+
+	board.resetPassCount();
+	if (!board.turnEnd())return false;
+
+	return true;
 }
 
 void PlayerData::input(Board& board)
@@ -71,7 +74,6 @@ void PlayerData::input(Board& board)
 		case KEY_W:
 		case KEY_UP:
 			if (v == 1)	continue;
-
 			v--;
 
 			break;
@@ -99,6 +101,7 @@ void PlayerData::input(Board& board)
 			h++;
 
 			break;
+
 		case KEY_ENTER:
 			if (board.board()[v][h].direction() == 0)
 			{
@@ -108,8 +111,8 @@ void PlayerData::input(Board& board)
 			}
 
 			board.placedStone(Vector2Int(v,h),_color);
-			set_selectPos(Vector2Int(v, h));
 			break;
+
 		case KEY_U:
 			if (!board.undo())
 			{

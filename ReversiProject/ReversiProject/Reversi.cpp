@@ -5,7 +5,7 @@
 #include "Reversi.h"
 #include "ConsoleManager.h"
 
-using namespace std; 
+using namespace std;
 
 void Reversi::start()
 {
@@ -24,11 +24,11 @@ bool Reversi::initial_settings()
 void Reversi::gameloop()
 {
 	int turn = 0;
-	
+
 	while (true)
 	{
 		PlayerData p = player[(turn++) % 2];
 
-		p.turn(_board);
+		if (!p.turn(_board))break;
 	}
 }

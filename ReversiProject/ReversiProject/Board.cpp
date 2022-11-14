@@ -74,6 +74,10 @@ void Board::printBoard()
 void Board::placedStone(const Vector2Int pos, const BoardStatus color)
 {
 	_board[pos.x][pos.y].setStatus(color);
+
+	int index = color == Black ? 0 : 1;
+	_colorCount[index]++;
+
 	reverse(pos, color);
 }
 
@@ -98,6 +102,18 @@ void Board::reverse(const Vector2Int pos, const BoardStatus color)
 			//石を反転させて
 			_board[x][y].reverse();
 
+			//石の総数を保存
+			if (color == Black)
+			{
+				_colorCount[0]++;
+				_colorCount[1]--;
+			}
+			else
+			{
+				_colorCount[0]--;
+				_colorCount[1]++;
+			}
+
 			//その結果を記録
 			updateLog.push_back(_board[x][y]);
 
@@ -105,9 +121,9 @@ void Board::reverse(const Vector2Int pos, const BoardStatus color)
 			x += SEARCH_TABLE[i].x;
 			y += SEARCH_TABLE[i].y;
 		}
-
 	}
 
+	//今回のログを保存
 	_log.push_back(updateLog);
 }
 
@@ -165,11 +181,26 @@ bool Board::undo()
 
 		Vector2Int pos = _log[index][0].position();
 		_board[pos.x][pos.y].setStatus(None);
+		
+		int isBlack = _log[index][0].status() == Black ? 0 : 1;
+		_colorCount[isBlack]--;
 
 		for (int i = 1; i < _log[index].size(); i++)
 		{
 			pos = _log[index][i].position();
 			_board[pos.x][pos.y].reverse();
+
+			//石の総数を保存
+			if (_log[index][i].status() == Black)
+			{
+				_colorCount[0]--;
+				_colorCount[1]++;
+			}
+			else
+			{
+				_colorCount[0]++;
+				_colorCount[1]--;
+			}
 		}
 
 		//今回もとに戻したログを削除
@@ -189,10 +220,31 @@ bool Board::pass()
 
 	//空の配列を代入
 	_log.push_back(vector<BoardPoint>());
+	
+	//パス回数を記録。連続2回でゲーム終了
+	_passCount++;
+
 	return true;
 }
 
-void Board::turnEnd()
+bool Board::turnEnd()
 {
 	_canPlacedPoint.clear();
+
+	if (isGameOver())return false;
+
+	return true;
+}
+
+bool Board::isGameOver()
+{
+	if (_passCount >= 2)return true;
+	if (_colorCount[0] + _colorCount[1] >= BOARD_MAX)return true;
+
+	return false;
+}
+
+void Board::resetPassCount()
+{
+	_passCount = 0;
 }
