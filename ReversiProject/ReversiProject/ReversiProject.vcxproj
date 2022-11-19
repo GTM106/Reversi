@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AIData.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="BoardPoint.cpp" />
     <ClCompile Include="ConsoleManager.cpp" />
@@ -137,9 +138,11 @@
     <ClCompile Include="source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AIData.h" />
     <ClInclude Include="Board.h" />
     <ClInclude Include="BoardPoint.h" />
     <ClInclude Include="ConsoleManager.h" />
+    <ClInclude Include="ITurn.h" />
     <ClInclude Include="PlayerData.h" />
     <ClInclude Include="Reversi.h" />
     <ClInclude Include="Vector2Int.h" />
