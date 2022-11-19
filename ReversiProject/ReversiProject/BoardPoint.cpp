@@ -1,11 +1,7 @@
 #include "BoardPoint.h"
 
-BoardPoint::BoardPoint(BoardStatus status,Vector2Int pos)
+BoardPoint::BoardPoint(BoardStatus status, Vector2Int pos) :_status(status), _canPlace(false), _position(pos), _direction(0)
 {
-	_status = status;
-	_canPlace = false;
-	_position = pos;
-	_direction = 0;
 }
 
 void BoardPoint::setCanPlaced(bool enable)

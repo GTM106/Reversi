@@ -23,9 +23,8 @@
 
 using namespace std;
 
-PlayerData::PlayerData(BoardStatus color)
+PlayerData::PlayerData(BoardStatus color) : _color(color)
 {
-	_color = color;
 }
 
 bool PlayerData::turn(Board& board)
@@ -110,7 +109,7 @@ void PlayerData::input(Board& board)
 				continue;
 			}
 
-			board.placedStone(Vector2Int(v,h),_color);
+			board.placedStone(Vector2Int(v, h), _color);
 			break;
 
 		case KEY_U:

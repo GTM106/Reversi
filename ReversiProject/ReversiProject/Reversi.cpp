@@ -18,6 +18,9 @@ void Reversi::start()
 
 bool Reversi::initial_settings()
 {
+	player[0].reset(new PlayerData(Black));
+	player[1].reset(new AIData(White));
+
 	return true;
 }
 
@@ -27,8 +30,6 @@ void Reversi::gameloop()
 
 	while (true)
 	{
-		PlayerData p = player[(turn++) % 2];
-
-		if (!p.turn(_board))break;
+		if (!player[(turn++) % 2]->turn(_board))break;
 	}
 }

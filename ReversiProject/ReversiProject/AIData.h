@@ -3,14 +3,14 @@
 #include "Board.h"
 #include "ITurn.h"
 
-class PlayerData : public ITurn
+class AIData : public ITurn
 {
 	BoardStatus _color;
 
-	void print_board(int h, int v, Board board);
-	void input(Board& board);
+	int depth;
+
 public:
-	PlayerData(BoardStatus color);
+	AIData(BoardStatus color);
 
 	bool turn(Board& board);
 

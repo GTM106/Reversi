@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Board::Board()
+Board::Board() :_passCount(0)
 {
 }
 
@@ -181,7 +181,7 @@ bool Board::undo()
 
 		Vector2Int pos = _log[index][0].position();
 		_board[pos.x][pos.y].setStatus(None);
-		
+
 		int isBlack = _log[index][0].status() == Black ? 0 : 1;
 		_colorCount[isBlack]--;
 
@@ -220,7 +220,7 @@ bool Board::pass()
 
 	//空の配列を代入
 	_log.push_back(vector<BoardPoint>());
-	
+
 	//パス回数を記録。連続2回でゲーム終了
 	_passCount++;
 

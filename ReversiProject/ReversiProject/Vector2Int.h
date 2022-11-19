@@ -5,10 +5,8 @@ public:
 	int x;
 	int y;
 
-	Vector2Int()
+	Vector2Int() :x(0), y(0)
 	{
-		x = 0;
-		y = 0;
 	}
 
 	Vector2Int(int x, int y)
@@ -20,16 +18,6 @@ public:
 	{
 		this->x = x;
 		this->y = y;
-	}
-
-	void set_x(int x)
-	{
-		set(x, y);
-	}
-
-	void set_y(int y)
-	{
-		set(x, y);
 	}
 };
 
