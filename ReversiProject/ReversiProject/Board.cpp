@@ -3,8 +3,15 @@
 
 using namespace std;
 
-Board::Board() :_passCount(0)
+Board::Board() :_passCount(0), turn(0)
 {
+	//初期石数
+	_colorCount[static_cast<int>(Black)] = 2;
+	_colorCount[static_cast<int>(None)] = 60;
+	_colorCount[static_cast<int>(White)] = 2;
+
+	//盤面の初期化
+	init();
 }
 
 void Board::init()
@@ -35,6 +42,8 @@ void Board::init()
 	_board[5][4].setStatus(Black);
 	_board[4][5].setStatus(Black);
 	_board[5][5].setStatus(White);
+
+	initCanPlacedPoint();
 }
 
 void Board::printBoard()
@@ -48,7 +57,7 @@ void Board::printBoard()
 			switch (_board[i][j].status())
 			{
 			case None:
-				if (_board[i][j].direction() != 0) cout << "・";
+				if (CanPlacedPoint()[turn].direction() != 0) cout << "・";
 				else cout << "　";
 				break;
 			case White:
@@ -71,14 +80,19 @@ void Board::printBoard()
 	}
 }
 
-void Board::placedStone(const Vector2Int pos, const BoardStatus color)
+void Board::placedStone(const Vector2Int pos)
 {
-	_board[pos.x][pos.y].setStatus(color);
+	_board[pos.x][pos.y].setStatus(_currentColor);
 
-	int index = color == Black ? 0 : 1;
-	_colorCount[index]++;
+	_colorCount[static_cast<int>(_currentColor)]++;
+	_colorCount[static_cast<int>(None)]--;
 
-	reverse(pos, color);
+	reverse(pos, _currentColor);
+	
+	turn++;
+	_currentColor = static_cast<BoardStatus>(-_currentColor);
+
+	initCanPlacedPoint();
 }
 
 void Board::reverse(const Vector2Int pos, const BoardStatus color)
@@ -103,16 +117,8 @@ void Board::reverse(const Vector2Int pos, const BoardStatus color)
 			_board[x][y].reverse();
 
 			//石の総数を保存
-			if (color == Black)
-			{
-				_colorCount[0]++;
-				_colorCount[1]--;
-			}
-			else
-			{
-				_colorCount[0]--;
-				_colorCount[1]++;
-			}
+			_colorCount[static_cast<int>(color)]++;
+			_colorCount[static_cast<int>(-color)]--;
 
 			//その結果を記録
 			updateLog.push_back(_board[x][y]);
@@ -127,16 +133,39 @@ void Board::reverse(const Vector2Int pos, const BoardStatus color)
 	_log.push_back(updateLog);
 }
 
+void Board::initCanPlacedPoint()
+{
+	_canPlacedPoint[turn].clear();
+
+	for (int i = 1; i < 9; i++)
+	{
+		for (int j = 1; j < 9; j++)
+		{
+			checkCanPlaced(Vector2Int(i, j), _currentColor);
+
+			if (_board[i][j].direction() != 0)
+			{
+				_canPlacedPoint[turn].emplace_back(_board[i][j]);
+			}
+		}
+	}
+}
+
 void Board::checkCanPlaced(const Vector2Int pos, const BoardStatus color)
 {
 	//すでに置かれていたら弾く
 	if (_board[pos.x][pos.y].status() != BoardStatus::None)
 	{
 		_board[pos.x][pos.y].setDirection(0);
+		_board[pos.x][pos.y].resetReverseCount();
 		return;
 	}
 
+	//反転できる個数をリセット
+	_board[pos.x][pos.y].resetReverseCount();
+
 	unsigned direction = 0;
+	unsigned reverseCount = 0;
 	int x, y;
 
 	for (int i = 0; i < 8; i++)
@@ -152,71 +181,82 @@ void Board::checkCanPlaced(const Vector2Int pos, const BoardStatus color)
 		{
 			x += SEARCH_TABLE[i].x;
 			y += SEARCH_TABLE[i].y;
+			reverseCount++;
 		}
 
 		//最後が自分の色ならビットを立てる
-		if (_board[x][y].status() == color)direction |= (1 << i);
+		if (_board[x][y].status() == color)
+		{
+			direction |= (1 << i);
+			_board[pos.x][pos.y].addReverseCount(reverseCount);
+		}
+		else reverseCount = 0;
 	}
 
-	//置ける場所があるなら置ける場所の地点に登録
-	if (direction != 0)	_canPlacedPoint.push_back(_board[pos.x][pos.y]);
-
 	_board[pos.x][pos.y].setDirection(direction);
+
+	//置ける場所があるなら置ける場所の地点に登録
+	//if (direction != 0)	_canPlacedPoint[turn].push_back(_board[pos.x][pos.y]);
 }
 
-bool Board::undo()
+bool Board::undo(BoardStatus color)
 {
-	if (_log.size() <= 1)return false;
+	//白のときと黒のときで戻せる限界値が違う
+	int limit = color == Black ? 0 : 1;
+	if (_log.size() <= limit)return false;
 
-	auto undoMethod = [this]()
+	//一手戻すため、現在の色を反転させる
+	_currentColor = static_cast<BoardStatus>(-_currentColor);
+
+	//最新の情報は後ろにある
+	vector<BoardPoint>& latestInfo = _log.back();
+
+	//情報がなかったらパスしたターン
+	if (latestInfo.empty())
 	{
-		int index = static_cast<int>(_log.size() - 1);
-		if (_log[index].size() == 0)
-		{
-			//今回もとに戻したログを削除
-			_log.pop_back();
-
-			return;
-		}
-
-		Vector2Int pos = _log[index][0].position();
-		_board[pos.x][pos.y].setStatus(None);
-
-		int isBlack = _log[index][0].status() == Black ? 0 : 1;
-		_colorCount[isBlack]--;
-
-		for (int i = 1; i < _log[index].size(); i++)
-		{
-			pos = _log[index][i].position();
-			_board[pos.x][pos.y].reverse();
-
-			//石の総数を保存
-			if (_log[index][i].status() == Black)
-			{
-				_colorCount[0]--;
-				_colorCount[1]++;
-			}
-			else
-			{
-				_colorCount[0]++;
-				_colorCount[1]--;
-			}
-		}
-
 		//今回もとに戻したログを削除
 		_log.pop_back();
-	};
 
-	//2回同じ処理を呼び出すことで直前の自分のターンに戻る
-	undoMethod();
-	undoMethod();
+		return true;
+	}
+
+	//打った地点のundo
+	Vector2Int pos = latestInfo[0].position();
+	_board[pos.x][pos.y].setStatus(None);
+
+	//石の総数を保存
+	_colorCount[static_cast<int>(latestInfo[0].status())]--;
+	_colorCount[static_cast<int>(None)]++;
+
+	//reverseした地点のundo
+	for (int i = 1; i < latestInfo.size(); i++)
+	{
+		pos = latestInfo[i].position();
+		_board[pos.x][pos.y].reverse();
+
+		//石の総数を保存
+		_colorCount[static_cast<int>(latestInfo[i].status())]--;
+		_colorCount[static_cast<int>(-latestInfo[i].status())]++;
+	}
+
+	//今回もとに戻したログを削除
+	_log.pop_back();
+
+	//ターンを戻す
+	turn--;
+	initCanPlacedPoint();
 
 	return true;
 }
 
+bool Board::undo()
+{
+	return undo(_currentColor);
+}
+
 bool Board::pass()
 {
-	if (_canPlacedPoint.size() > 0)return false;
+	if (_canPlacedPoint[turn].size() > 0)return false;
 
 	//空の配列を代入
 	_log.push_back(vector<BoardPoint>());
@@ -224,13 +264,15 @@ bool Board::pass()
 	//パス回数を記録。連続2回でゲーム終了
 	_passCount++;
 
+	_currentColor = static_cast<BoardStatus>(-_currentColor);
+
+	initCanPlacedPoint();
+
 	return true;
 }
 
 bool Board::turnEnd()
 {
-	_canPlacedPoint.clear();
-
 	if (isGameOver())return false;
 
 	return true;
@@ -239,7 +281,7 @@ bool Board::turnEnd()
 bool Board::isGameOver()
 {
 	if (_passCount >= 2)return true;
-	if (_colorCount[0] + _colorCount[1] >= BOARD_MAX)return true;
+	if (_colorCount[static_cast<int>(None)] == 0)return true;
 
 	return false;
 }
@@ -247,4 +289,9 @@ bool Board::isGameOver()
 void Board::resetPassCount()
 {
 	_passCount = 0;
+}
+
+void Board::reverseCurrentColor()
+{
+	_currentColor = static_cast<BoardStatus>(-_currentColor);
 }

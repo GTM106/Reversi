@@ -1,6 +1,6 @@
 #include "BoardPoint.h"
 
-BoardPoint::BoardPoint(BoardStatus status, Vector2Int pos) :_status(status), _canPlace(false), _position(pos), _direction(0)
+BoardPoint::BoardPoint(BoardStatus status, Vector2Int pos) :_status(status), _canPlace(false), _position(pos), _direction(0), _reverseCount(0)
 {
 }
 
@@ -22,4 +22,14 @@ void BoardPoint::reverse()
 void BoardPoint::setDirection(unsigned dir)
 {
 	_direction = dir;
+}
+
+void BoardPoint::addReverseCount(unsigned count)
+{
+	_reverseCount += count;
+}
+
+void BoardPoint::resetReverseCount()
+{
+	_reverseCount = 0;
 }
