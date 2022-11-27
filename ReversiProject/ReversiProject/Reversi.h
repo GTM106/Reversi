@@ -15,6 +15,7 @@ class Reversi
 
 	bool initial_settings();
 	void gameloop();
+	void gameFinish();
 
 public:
 	void start();

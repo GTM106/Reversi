@@ -30,7 +30,7 @@ void ConsoleManager::setConsoleBackGray()
 }
 
 //もとに戻す。※事前に元の色の取得が必要
-void ConsoleManager::setConsoleBackBlack()
+void ConsoleManager::resetConsoleColor()
 {
 	SetConsoleTextAttribute(handle, csbi.wAttributes);
 }
@@ -43,4 +43,43 @@ void ConsoleManager::setConsoleCursorErase()
 
 	// 変更した構造体情報をコンソールWindowにセットする
 	SetConsoleCursorInfo(handle, &cci);
+}
+
+void ConsoleManager::setColor(int col)
+{
+	HANDLE hCons = GetStdHandle(STD_OUTPUT_HANDLE);
+	WORD attr = 0;
+	if (col & COL_INTENSITY)
+		attr |= FOREGROUND_INTENSITY;
+	if (col & COL_RED_MASK)
+		attr |= FOREGROUND_RED;
+	if (col & COL_GREEN_MASK)
+		attr |= FOREGROUND_GREEN;
+	if (col & COL_BLUE_MASK)
+		attr |= FOREGROUND_BLUE;
+	SetConsoleTextAttribute(hCons, attr);
+}
+
+void ConsoleManager::setColor(int fg, int bg)
+{
+	HANDLE hCons = GetStdHandle(STD_OUTPUT_HANDLE);
+	WORD attr = 0;
+	if (fg & COL_INTENSITY)
+		attr |= FOREGROUND_INTENSITY;
+	if (fg & COL_RED_MASK)
+		attr |= FOREGROUND_RED;
+	if (fg & COL_GREEN_MASK)
+		attr |= FOREGROUND_GREEN;
+	if (fg & COL_BLUE_MASK)
+		attr |= FOREGROUND_BLUE;
+
+	if (bg & COL_INTENSITY)
+		attr |= BACKGROUND_INTENSITY;
+	if (bg & COL_RED_MASK)
+		attr |= BACKGROUND_RED;
+	if (bg & COL_GREEN_MASK)
+		attr |= BACKGROUND_GREEN;
+	if (bg & COL_BLUE_MASK)
+		attr |= BACKGROUND_BLUE;
+	SetConsoleTextAttribute(hCons, attr);
 }

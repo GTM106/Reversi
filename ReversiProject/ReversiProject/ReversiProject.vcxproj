@@ -146,6 +146,7 @@
     <ClInclude Include="ColorStorage.h" />
     <ClInclude Include="ConsoleManager.h" />
     <ClInclude Include="Evaluator.h" />
+    <ClInclude Include="ForcedTerminationException.h" />
     <ClInclude Include="ITurn.h" />
     <ClInclude Include="MidEvaluator.h" />
     <ClInclude Include="PerfectEvaluator.h" />
