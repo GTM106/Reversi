@@ -23,12 +23,12 @@ void AIData::put(Board& board)
 	{
 		limit = INT_MAX;
 		evaluator.reset(new PerfectEvaluator());
-		cout << "完全読み" << endl;
+		cout << "コンピュータが全力で思考中です…" << endl;
 	}
 	else
 	{
 		limit = normalDepth;
-		cout << "通常読み" << endl;
+		cout << "コンピュータが思考中です…" << endl;
 	}
 
 	int eval;
