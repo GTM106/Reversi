@@ -3,8 +3,8 @@
 #include <conio.h>
 
 #include "PlayerData.h"
-#include "ConsoleManager.h"
 #include "Vector2Int.h"
+#include "ForcedTerminationException.h"
 
 #define KEY_UP 72
 #define KEY_DOWN 80
@@ -20,6 +20,8 @@
 #define KEY_6 54
 #define KEY_8 56
 #define KEY_U 117
+#define KEY_TAB 9
+#define KEY_ESC 27
 
 using namespace std;
 
@@ -36,8 +38,16 @@ bool PlayerData::turn(Board& board)
 		return true;
 	}
 
-	input(board);
-
+	try
+	{
+		input(board);
+	}
+	catch(ForcedTerminationException)//強制終了選択肢を感知したら終了させる
+	{
+		cout << "……ゲームを終了します。" << endl;
+		return false;
+	}
+	
 	board.resetPassCount();
 	if (!board.turnEnd())return false;
 
@@ -46,14 +56,13 @@ bool PlayerData::turn(Board& board)
 
 void PlayerData::input(Board& board)
 {
-	ConsoleManager consoleManager;
-
 	int h = 5;
 	int v = 5;
 
 	//現在の地点を特殊表示
-	consoleManager.console_clear();
 	print_board(h, v, board);
+
+	bool isPrintOperationExplanation = false;
 
 	//入力
 	int val = 0;
@@ -61,7 +70,7 @@ void PlayerData::input(Board& board)
 	{
 		switch ((val = _getch()))
 		{
-		//上
+			//上
 		case KEY_8:
 		case KEY_W:
 		case KEY_UP:
@@ -69,7 +78,7 @@ void PlayerData::input(Board& board)
 			v--;
 
 			break;
-		//下
+			//下
 		case KEY_2:
 		case KEY_S:
 		case KEY_DOWN:
@@ -77,7 +86,7 @@ void PlayerData::input(Board& board)
 			v++;
 
 			break;
-		//左
+			//左
 		case KEY_4:
 		case KEY_A:
 		case KEY_LEFT:
@@ -85,7 +94,7 @@ void PlayerData::input(Board& board)
 			h--;
 
 			break;
-		//右
+			//右
 		case KEY_6:
 		case KEY_D:
 		case KEY_RIGHT:
@@ -93,22 +102,26 @@ void PlayerData::input(Board& board)
 			h++;
 
 			break;
-		//決定
+			//決定
 		case KEY_ENTER:
 			if (board.board()[v][h].direction() == 0)
 			{
 				val = 0;
+				_consoleManager.setColor(COL_RED);
 				cout << "そこには置けません。" << endl;
+				_consoleManager.resetConsoleColor();
 				continue;
 			}
 
 			board.placedStone(Vector2Int(v, h));
 			break;
-		//Undo
+			//Undo
 		case KEY_U:
 			if (!board.undo(_color))
 			{
+				_consoleManager.setColor(COL_RED);
 				cout << "それ以上戻せません" << endl;
+				_consoleManager.resetConsoleColor();
 				continue;
 			}
 
@@ -118,31 +131,107 @@ void PlayerData::input(Board& board)
 			//パスの盤面が進行不能になるからそれ以前まで戻す
 			while (board.CanPlacedPoint().empty())
 			{
-				if (!board.undo(_color))
-				{
-					break;
-				}
-
+				if (!board.undo(_color))break;
+				
 				//2回行って自分のターンに戻る
 				board.undo(_color);
 			}
 
 			break;
 
+		case KEY_TAB:
+			isPrintOperationExplanation ^= true;
+			break;
+		case KEY_ESC:
+			if (isFinishGame(h, v, board))throw ForcedTerminationException();//安全に強制終了させる
+			break;
 		default:
 			continue;
 		}
 
 		//現在の地点を特殊表示
-		consoleManager.console_clear();
 		print_board(h, v, board);
+		if (isPrintOperationExplanation)operationExplanation();
 	}
+}
+
+void PlayerData::operationExplanation()
+{
+	_consoleManager.setColor(COL_CYAN);
+	cout << "　☆ 操作説明 ☆　" << endl;
+	cout << "[移動] 　　  WASD・テンキー・矢印キー" << endl;
+	cout << "[やり直し]　 U" << endl;
+	cout << "[石を打つ]　 ENTER" << endl;
+	cout << "[閉じる]　　 TAB" << endl;
+	cout << "[ゲーム終了] ESC" << endl;
+	_consoleManager.resetConsoleColor();
+}
+
+bool PlayerData::isFinishGame(int h, int v, Board board)
+{
+	bool isFinish = false;
+
+	print_board(h, v, board);
+	_consoleManager.setColor(COL_YELLOW);
+	cout << "ゲームを終了しますか？" << endl;
+	if (isFinish)cout << "→";
+	cout << "　　はい" << endl;
+	if (!isFinish)cout << "→";
+	cout << "　　いいえ" << endl;
+
+	_consoleManager.resetConsoleColor();
+
+	int val = 0;
+	while (val != KEY_ENTER)
+	{
+		switch ((val = _getch()))
+		{
+			//上
+		case KEY_8:
+		case KEY_W:
+		case KEY_UP:
+			if (isFinish)continue;
+			isFinish = true;
+			break;
+			//下
+		case KEY_2:
+		case KEY_S:
+		case KEY_DOWN:
+			if (!isFinish)continue;
+			isFinish = false;
+			break;
+			//決定
+		case KEY_ENTER:
+			return isFinish;
+		case KEY_ESC:
+			return false;
+		default:
+			continue;
+		}
+
+		print_board(h, v, board);
+		_consoleManager.setColor(COL_YELLOW);
+		cout << "ゲームを終了しますか？" << endl;
+		if (isFinish)cout << "→";
+		cout << "　　はい" << endl;
+		if (!isFinish)cout << "→";
+		cout << "　　いいえ" << endl;
+		_consoleManager.resetConsoleColor();
+	}
+
+	return false;
 }
 
 //通常とは異なる特殊な盤面表示
 void PlayerData::print_board(int h, int v, Board _board)
 {
-	ConsoleManager consoleManager;
+	//コンソールのクリア
+	_consoleManager.console_clear();
+
+	//操作説明表示のヘルプ
+	_consoleManager.setColor(COL_CYAN);
+	cout << endl << endl << "TABキーを押して操作説明を表示…" << endl;
+	_consoleManager.resetConsoleColor();
 
 	auto& board = _board.board();
 
@@ -152,7 +241,7 @@ void PlayerData::print_board(int h, int v, Board _board)
 		cout << "|";
 		for (int j = 0; j < board.size(); j++)
 		{
-			if (h == j && v == i)consoleManager.setConsoleBackGray();
+			if (h == j && v == i)_consoleManager.setConsoleBackGray();
 
 			switch (board[i][j].status())
 			{
@@ -173,7 +262,7 @@ void PlayerData::print_board(int h, int v, Board _board)
 				break;
 			}
 
-			if (h == j && v == i)consoleManager.setConsoleBackBlack();
+			if (h == j && v == i)_consoleManager.resetConsoleColor();
 
 			cout << "|";
 		}
