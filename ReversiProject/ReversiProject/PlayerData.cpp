@@ -29,14 +29,6 @@ PlayerData::PlayerData(BoardStatus color) : _color(color)
 
 bool PlayerData::turn(Board& board)
 {
-	for (int i = 1; i < 9; i++)
-	{
-		for (int j = 1; j < 9; j++)
-		{
-			board.checkCanPlaced(Vector2Int(i, j), _color);
-		}
-	}
-
 	//パスに成功したら弾く（置く場所がなかった）
 	if (board.pass())
 	{
@@ -69,6 +61,7 @@ void PlayerData::input(Board& board)
 	{
 		switch ((val = _getch()))
 		{
+		//上
 		case KEY_8:
 		case KEY_W:
 		case KEY_UP:
@@ -76,7 +69,7 @@ void PlayerData::input(Board& board)
 			v--;
 
 			break;
-
+		//下
 		case KEY_2:
 		case KEY_S:
 		case KEY_DOWN:
@@ -84,7 +77,7 @@ void PlayerData::input(Board& board)
 			v++;
 
 			break;
-
+		//左
 		case KEY_4:
 		case KEY_A:
 		case KEY_LEFT:
@@ -92,7 +85,7 @@ void PlayerData::input(Board& board)
 			h--;
 
 			break;
-
+		//右
 		case KEY_6:
 		case KEY_D:
 		case KEY_RIGHT:
@@ -100,7 +93,7 @@ void PlayerData::input(Board& board)
 			h++;
 
 			break;
-
+		//決定
 		case KEY_ENTER:
 			if (board.board()[v][h].direction() == 0)
 			{
@@ -109,22 +102,29 @@ void PlayerData::input(Board& board)
 				continue;
 			}
 
-			board.placedStone(Vector2Int(v, h), _color);
+			board.placedStone(Vector2Int(v, h));
 			break;
-
+		//Undo
 		case KEY_U:
-			if (!board.undo())
+			if (!board.undo(_color))
 			{
 				cout << "それ以上戻せません" << endl;
 				continue;
 			}
 
-			for (int i = 1; i < 9; i++)
+			//2回行って自分のターンに戻る
+			board.undo(_color);
+
+			//パスの盤面が進行不能になるからそれ以前まで戻す
+			while (board.CanPlacedPoint().empty())
 			{
-				for (int j = 1; j < 9; j++)
+				if (!board.undo(_color))
 				{
-					board.checkCanPlaced(Vector2Int(i, j), _color);
+					break;
 				}
+
+				//2回行って自分のターンに戻る
+				board.undo(_color);
 			}
 
 			break;
@@ -157,7 +157,7 @@ void PlayerData::print_board(int h, int v, Board _board)
 			switch (board[i][j].status())
 			{
 			case None:
-				if (board[i][j].direction() != 0) cout << "・";
+				if (_board.board()[i][j].direction() != 0) cout << "・";
 				else cout << "　";
 				break;
 			case White:

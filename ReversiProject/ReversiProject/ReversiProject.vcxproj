@@ -133,6 +133,8 @@
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="BoardPoint.cpp" />
     <ClCompile Include="ConsoleManager.cpp" />
+    <ClCompile Include="MidEvaluator.cpp" />
+    <ClCompile Include="PerfectEvaluator.cpp" />
     <ClCompile Include="PlayerData.cpp" />
     <ClCompile Include="Reversi.cpp" />
     <ClCompile Include="source.cpp" />
@@ -141,8 +143,12 @@
     <ClInclude Include="AIData.h" />
     <ClInclude Include="Board.h" />
     <ClInclude Include="BoardPoint.h" />
+    <ClInclude Include="ColorStorage.h" />
     <ClInclude Include="ConsoleManager.h" />
+    <ClInclude Include="Evaluator.h" />
     <ClInclude Include="ITurn.h" />
+    <ClInclude Include="MidEvaluator.h" />
+    <ClInclude Include="PerfectEvaluator.h" />
     <ClInclude Include="PlayerData.h" />
     <ClInclude Include="Reversi.h" />
     <ClInclude Include="Vector2Int.h" />
