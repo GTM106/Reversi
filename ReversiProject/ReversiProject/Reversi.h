@@ -16,6 +16,7 @@ class Reversi
 	bool initial_settings();
 	void gameloop();
 	void gameFinish();
+	bool isContinue();
 
 public:
 	void start();
