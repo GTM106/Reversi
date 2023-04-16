@@ -1,11 +1,7 @@
-#include "Reversi.h"
-#include "ConsoleManager.h"
+#include "NetworkStarter.h"
 
 int main()
 {
-	Reversi reversi;
-	ConsoleManager consoleManager;
-
-	consoleManager.setConsoleCursorErase();
-	reversi.start();
+	NetworkStarter starter;
+	starter.start();
 }

@@ -26,6 +26,10 @@ using namespace std;
 
 void Reversi::start()
 {
+	ConsoleManager consoleManager;
+
+	consoleManager.setConsoleCursorErase();
+
 	while (true)
 	{
 		if (!initial_settings())return;

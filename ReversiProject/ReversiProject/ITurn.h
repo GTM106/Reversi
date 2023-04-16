@@ -5,5 +5,6 @@
 class ITurn
 {
 public:
+	virtual ~ITurn() {};
 	virtual	bool turn(Board& board) = 0;
 };

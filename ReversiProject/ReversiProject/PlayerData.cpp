@@ -23,6 +23,10 @@
 #define KEY_TAB 9
 #define KEY_ESC 27
 
+#define PASS -1
+#define UNDO -2
+#define ESCAPE -3
+
 using namespace std;
 
 PlayerData::PlayerData(BoardStatus color) : _color(color)
@@ -42,12 +46,42 @@ bool PlayerData::turn(Board& board)
 	{
 		input(board);
 	}
-	catch(ForcedTerminationException)//強制終了選択肢を感知したら終了させる
+	catch (ForcedTerminationException)//強制終了選択肢を感知したら終了させる
 	{
 		cout << "……ゲームを終了します。" << endl;
 		return false;
 	}
-	
+
+	board.resetPassCount();
+	if (!board.turnEnd())return false;
+
+	return true;
+}
+
+bool PlayerData::networkTurn(Board& board)
+{
+	//パスに成功したら弾く（置く場所がなかった）
+	if (board.pass())
+	{
+		placedPoint = Vector2Int(PASS, PASS);
+
+		if (!board.turnEnd())return false;
+		return true;
+	}
+
+	try
+	{
+		input(board);
+	}
+	catch (ForcedTerminationException)//強制終了選択肢を感知したら終了させる
+	{
+		placedPoint = Vector2Int(ESCAPE, ESCAPE);
+
+		cout << "……ゲームを終了します。" << endl;
+
+		return false;
+	}
+
 	board.resetPassCount();
 	if (!board.turnEnd())return false;
 
@@ -114,28 +148,31 @@ void PlayerData::input(Board& board)
 			}
 
 			board.placedStone(Vector2Int(v, h));
+			placedPoint = Vector2Int(v, h);
 			break;
 			//Undo
 		case KEY_U:
-			if (!board.undo(_color))
-			{
-				_consoleManager.setColor(COL_RED);
-				cout << "それ以上戻せません" << endl;
-				_consoleManager.resetConsoleColor();
-				continue;
-			}
+			//if (!board.undo(_color))
+			//{
+			//	_consoleManager.setColor(COL_RED);
+			//	cout << "それ以上戻せません" << endl;
+			//	_consoleManager.resetConsoleColor();
+			//	continue;
+			//}
 
-			//2回行って自分のターンに戻る
-			board.undo(_color);
+			////2回行って自分のターンに戻る
+			//board.undo(_color);
 
-			//パスの盤面が進行不能になるからそれ以前まで戻す
-			while (board.CanPlacedPoint().empty())
-			{
-				if (!board.undo(_color))break;
-				
-				//2回行って自分のターンに戻る
-				board.undo(_color);
-			}
+			////パスの盤面が進行不能になるからそれ以前まで戻す
+			//while (board.CanPlacedPoint().empty())
+			//{
+			//	if (!board.undo(_color))break;
+
+			//	//2回行って自分のターンに戻る
+			//	board.undo(_color);
+			//}
+
+			//placedPoint = Vector2Int(UNDO, UNDO);
 
 			break;
 
@@ -143,7 +180,10 @@ void PlayerData::input(Board& board)
 			isPrintOperationExplanation ^= true;
 			break;
 		case KEY_ESC:
-			if (isFinishGame(h, v, board))throw ForcedTerminationException();//安全に強制終了させる
+			if (isFinishGame(h, v, board))
+			{
+				throw ForcedTerminationException();//安全に強制終了させる
+			}
 			break;
 		default:
 			continue;
@@ -160,7 +200,6 @@ void PlayerData::operationExplanation()
 	_consoleManager.setColor(COL_CYAN);
 	cout << "　☆ 操作説明 ☆　" << endl;
 	cout << "[移動] 　　  WASD・テンキー・矢印キー" << endl;
-	cout << "[やり直し]　 U" << endl;
 	cout << "[石を打つ]　 ENTER" << endl;
 	cout << "[閉じる]　　 TAB" << endl;
 	cout << "[ゲーム終了] ESC" << endl;
